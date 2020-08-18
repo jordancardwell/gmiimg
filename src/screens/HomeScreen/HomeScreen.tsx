@@ -12,6 +12,7 @@ import BottomSheet from 'reanimated-bottom-sheet'
 import { WelcomeSheet } from '../../components/WelcomeSheet'
 import { Post } from '../../components/Post'
 import { getPosts } from '../../services/queryPosts'
+import { NavigationContainer } from '@react-navigation/native'
 
 interface HomeScreenProps {
   user: any
@@ -101,7 +102,7 @@ export default function HomeScreen({
         <Text>LOGOUT</Text>
       </TouchableHighlight> */}
 
-      <View style={{ position: 'absolute', bottom: 10, left: 10, right: 0 }}>
+      <View style={{ position: 'absolute', bottom: 10, left: 10, width: 30 }}>
         <Layout
           level='2'
           style={{
@@ -116,11 +117,12 @@ export default function HomeScreen({
           }}
         >
           <TouchableWithoutFeedback
-            onPress={() => async () => {
+            onPress={async () => {
               try {
+                console.log('logging out')
                 await firebase.auth().signOut()
-                alert('signed out clearing user')
                 setUser()
+                navigation.navigate('Login')
               } catch (e) {
                 console.log(e)
                 alert('error signing out')
@@ -128,7 +130,15 @@ export default function HomeScreen({
             }}
           >
             <Image
-              style={{ width: 30, height: 30, marginBottom: -30, resizeMode: 'contain', alignSelf: 'center', flex: 0 }}
+              style={{
+                zIndex: 20,
+                width: 30,
+                height: 30,
+                marginBottom: -30,
+                resizeMode: 'contain',
+                alignSelf: 'center',
+                flex: 0,
+              }}
               source={require('../../../assets/logout.png')}
             />
             <Icon style={{ color: 'black' }} name='arrow-back' />
@@ -136,7 +146,7 @@ export default function HomeScreen({
         </Layout>
       </View>
 
-      <View style={{ position: 'absolute', bottom: 5, left: 0, right: 0 }}>
+      <View style={{ position: 'absolute', bottom: 5, width: 75 }}>
         <Layout
           level='2'
           style={{
