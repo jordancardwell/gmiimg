@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Image } from 'react-native'
 import {
   TouchableHighlight,
@@ -6,11 +6,12 @@ import {
 } from 'react-native-gesture-handler'
 import { firebase } from '../../services/firebase'
 import { SafeAreaNavLayout } from '../../components/SafeAreaNavLayout'
-import { List, Layout } from '@ui-kitten/components'
+import { Icon, List, Layout } from '@ui-kitten/components'
 import Animated from 'react-native-reanimated'
 import BottomSheet from 'reanimated-bottom-sheet'
 import { WelcomeSheet } from '../../components/WelcomeSheet'
 import { Post } from '../../components/Post'
+import { getPosts } from '../../services/queryPosts'
 
 interface HomeScreenProps {
   user: any
@@ -27,6 +28,11 @@ export default function HomeScreen({
   ...rest
 }: HomeScreenProps) {
   const welcomeSheetRef = React.useRef(null)
+  const [posts, setPosts] = useState(
+    undefined as
+      | firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
+      | undefined
+  )
 
   const closeBottomSheet = () => {
     if (welcomeSheetRef.current) {
@@ -40,6 +46,15 @@ export default function HomeScreen({
     }
   }, [])
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const _posts = await getPosts()
+      setPosts(_posts)
+    }
+
+    fetchPosts()
+  }, [])
+
   const mockPosts = [
     {
       body:
@@ -48,26 +63,25 @@ export default function HomeScreen({
       title: 'My Fav placeholder',
       user: '4j2WQnD2TrhcXKDak9vbQ9CpJQq2',
     },
-    {
-      body:
-        'I met this placeholder back at the bacon ipsum cafe. Bacon ipsum dolor amet corned beef chislic jerky, chicken pork belly kevin ground round cow rump beef tail beef ribs turducken. Ham meatball hamburger pancetta sausage brisket kielbasa jerky frankfurter pork. Rump strip steak pork chop salami flank, chuck spare ribs venison shankle tail swine shank. ',
-      image: 'https://source.unsplash.com/random',
-      title: 'My Fav placeholder',
-      user: '4j2WQnD2TrhcXKDak9vbQ9CpJQq2',
-    },
-    {
-      body:
-        'I met this placeholder back at the bacon ipsum cafe. Bacon ipsum dolor amet corned beef chislic jerky, chicken pork belly kevin ground round cow rump beef tail beef ribs turducken. Ham meatball hamburger pancetta sausage brisket kielbasa jerky frankfurter pork. Rump strip steak pork chop salami flank, chuck spare ribs venison shankle tail swine shank. ',
-      image: 'https://source.unsplash.com/random',
-      title: 'My Fav placeholder',
-      user: '4j2WQnD2TrhcXKDak9vbQ9CpJQq2',
-    },
   ]
+  const postArray: any[] = []
+  posts?.forEach((doc) => postArray.push(doc.data()))
+
   return (
-    <SafeAreaNavLayout navigation={navigation} showBack={false} showLogo>
-      <List
+    <SafeAreaNavLayout
+      navigation={navigation}
+      showBack={false}
+      showLogout
+      showLogo
+    >
+      {/* <List
         style={{ ...StyleSheet.absoluteFillObject }}
         data={mockPosts}
+        renderItem={({ item }) => <Post key={item.image} post={item} />}
+      /> */}
+      <List
+        style={{ ...StyleSheet.absoluteFillObject }}
+        data={postArray}
         renderItem={({ item }) => <Post key={item.image} post={item} />}
       />
 
@@ -86,6 +100,41 @@ export default function HomeScreen({
       >
         <Text>LOGOUT</Text>
       </TouchableHighlight> */}
+
+      <View style={{ position: 'absolute', bottom: 10, left: 10, right: 0 }}>
+        <Layout
+          level='2'
+          style={{
+            flex: 0,
+            backgroundColor: 'white',
+            alignItems: 'center',
+            alignSelf: 'flex-start',
+            justifyContent: 'center',
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+          }}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => async () => {
+              try {
+                await firebase.auth().signOut()
+                alert('signed out clearing user')
+                setUser()
+              } catch (e) {
+                console.log(e)
+                alert('error signing out')
+              }
+            }}
+          >
+            <Image
+              style={{ width: 30, height: 30, marginBottom: -30, resizeMode: 'contain', alignSelf: 'center', flex: 0 }}
+              source={require('../../../assets/logout.png')}
+            />
+            <Icon style={{ color: 'black' }} name='arrow-back' />
+          </TouchableWithoutFeedback>
+        </Layout>
+      </View>
 
       <View style={{ position: 'absolute', bottom: 5, left: 0, right: 0 }}>
         <Layout

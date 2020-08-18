@@ -24,6 +24,7 @@ export const SafeAreaNavLayout = ({
   showBack = true,
   showHeader = true,
   showLogo = false,
+  showLogout = false,
   level = '4',
   children,
 }: any) => {
