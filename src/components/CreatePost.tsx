@@ -26,9 +26,10 @@ export default function CreatePost({
   const [image, setImage] = useState('')
   const [isPosting, setIsPosting] = useState(false)
 
-  const onPostPress = () => {
+  const onPostPress = async () => {
     console.log('onPostPress', { title, body, image, user: userUid })
-    createPost({ title, body, image, user: userUid })
+    await createPost({ title, body, image, user: userUid })
+    navigation.goBack()
   }
 
   const onImageUpload = (imageUrl) => {
